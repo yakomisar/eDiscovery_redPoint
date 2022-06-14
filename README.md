@@ -29,12 +29,6 @@ redis_id=$(docker ps -aqf "name=redis")
 docker exec -it ${redis_id} redis-cli set admin '{"uid":"admin", "password":"8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", "groups_by_applications":{"datashare": ["test"]}}}'
 echo "Default record for redis with name/password: admin/admin has been created."
 ```
-#### __Строка 74__
-```
-docker run -p 8080:8080 
---net datashare_back 
--v ${local_folder}:/home/datashare/data -ti icij/datashare:10.2.1 --mode SERVER --redisAddress redis://172.25.0.2:6379 --elasticsearchAddress http://172.25.0.4:9200 --messageBusAddress 172.25.0.2 --dataSourceUrl "jdbc:postgresql://172.25.0.3:5432/dsbase?user=postgres&password=strongpwd" --rootHost localhost:8080 --authFilter org.icij.datashare.session.BasicAuthAdaptorFilter
-```
 ### __Шаг 2__ - `scan.sh`
 После запуска скрипта - будет предложено выбрать путь до папки, в которой лежат данные, которые необходимо проиндексировать. 
 #### __Пример: /Users/<Имя пользователя>/Desktop/Datashare/user_data__
