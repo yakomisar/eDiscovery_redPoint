@@ -6,14 +6,20 @@ sleep 1
 echo "Please specify user data folder..."
 read user_data_folder
 
-datashare_version="10.2.1"
+datashare_version="10.6.1"
 redis_image="redis:4.0.1-alpine"
 postgres_image="postgres:10.20"
 elastic_image="elasticsearch:7.9.1"
 
+MEM_ALLOCATED_MEGA=$(free|awk '/^Mem:/{print $2"/(2*1024)"}'|bc)
+
+if [ -z "${DS_JAVA_OPTS}" ] && [ -n "${MEM_ALLOCATED_MEGA}" ]; then
+  DS_JAVA_OPTS="-Xmx${MEM_ALLOCATED_MEGA}m"
+fi
+
 create_docker_compose_file () {
 cat > docker-compose.yaml << EOF
-version: '3.1'
+version: '2'
 
 services:
   redis:
@@ -53,6 +59,7 @@ services:
       back:
         ipv4_address: 172.25.0.4
     environment:
+      - "ES_JAVA_OPTS=${DS_JAVA_OPTS}"
       - "discovery.type=single-node"
     restart: on-failure
 
@@ -74,6 +81,6 @@ redis_id=$(docker ps -aqf "name=redis")
 docker exec -it ${redis_id} redis-cli set admin '{"uid":"admin", "password":"8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", "groups_by_applications":{"datashare": ["test"]}}}'
 echo "Default record for redis with name/password: admin/admin has been created."
 
-docker run -p 8080:8080 --net datashare_back -v ${user_data_folder}:/home/datashare/data -ti icij/datashare:10.2.1 --mode SERVER --redisAddress redis://172.25.0.2:6379 --elasticsearchAddress http://172.25.0.4:9200 --messageBusAddress 172.25.0.2 --dataSourceUrl "jdbc:postgresql://172.25.0.3:5432/dsbase?user=postgres&password=strongpwd" --rootHost localhost:8080 --authFilter org.icij.datashare.session.BasicAuthAdaptorFilter
+docker run -p 8080:8080 --net datashare_back -v ${user_data_folder}:/home/datashare/data -ti icij/datashare:10.6.1 --mode SERVER --redisAddress redis://172.25.0.2:6379 --elasticsearchAddress http://172.25.0.4:9200 --messageBusAddress 172.25.0.2 --dataSourceUrl "jdbc:postgresql://172.25.0.3:5432/dsbase?user=postgres&password=strongpwd" --rootHost localhost:8080 --authFilter org.icij.datashare.session.BasicAuthAdaptorFilter
 
 echo "Datashare has been successfully launched."
