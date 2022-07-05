@@ -1,6 +1,6 @@
 # __Datashare server startup guide__
 
-#### Убедитесь, что у вас установлен Docker и Docker-compose. Создайте директорию проекта (например: __case001__), перейдите в нее и дополнительно создайте три папки:
+#### Убедитесь, что у вас установлен Docker и Docker-compose. Создайте директорию для Datashare (например: __Datashare__), перейдите в нее и дополнительно создайте три папки:
 `mkdir pg_data elastic_index user_data`
 - - - -
 
